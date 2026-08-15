@@ -89,6 +89,7 @@ export function apply(ctx: ClientContext): void {
     inject: () => ({
       chimeVolume: chime.getVolume(),
       onChimeVolume: (volume: number) => { chime.setVolume(volume) },
+      onChimePreview: (volume: number) => { chime.preview(volume) },
     }),
   }, VolumeControl))
   ctx.effect(() => () => { chime.dispose() }, 'ui-chime: teardown')

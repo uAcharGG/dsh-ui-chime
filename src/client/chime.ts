@@ -16,6 +16,8 @@ const VOLUME_KEY = 'dsh.ui-chime.volume'
 const DEFAULT_VOLUME = 0.6
 /** Minimum gap between two audible chimes (burst guard). */
 const MIN_INTERVAL_MS = 250
+/** Minimum gap between two volume-preview chimes (drag feedback guard). */
+const PREVIEW_INTERVAL_MS = 150
 
 /** Notes of the chime, earliest first. Frequencies: A5 then E6 (a fifth up). */
 export interface ChimeNote {
@@ -106,6 +108,8 @@ export class ThinkingChime {
   private context: ChimeAudioContext | null = null
   // Negative infinity so the first play is never coalesced away.
   private lastPlayedAt = Number.NEGATIVE_INFINITY
+  // Negative infinity so the first preview is never coalesced away.
+  private lastPreviewAt = Number.NEGATIVE_INFINITY
   private volume: number
 
   /** Re-arm the context after any user gesture. */
@@ -183,6 +187,25 @@ export class ThinkingChime {
       const context = this.context
       if (context === null) return
       scheduleChime(context, context.currentTime, volume)
+    })
+  }
+
+  /**
+   * Preview a chime at the given volume without touching the persisted
+   * setting. Used by the volume control so the user hears the level while
+   * dragging the slider; a short throttle keeps a drag from stacking a
+   * burst of notes. At volume 0 the notes are inaudible, which is fine.
+   * @param volume - loudness in 0..1, clamped before playback.
+   */
+  preview(volume: number): void {
+    const now = this.now()
+    if (now - this.lastPreviewAt < PREVIEW_INTERVAL_MS) return
+    this.lastPreviewAt = now
+    const level = Math.min(1, Math.max(0, volume))
+    void this.resume().then(() => {
+      const context = this.context
+      if (context === null) return
+      scheduleChime(context, context.currentTime, level)
     })
   }
 

@@ -12,7 +12,7 @@ History replay (opening a session, pagination, reconnect) never rings: an event 
 
 ## How to use
 
-- **Volume control**: the composer tool row has a speaker button (Windows-style line icon) on the left; click it to open a slider. The setting persists in `localStorage`.
+- **Volume control**: the composer tool row has a speaker button (Windows-style line icon) on the left; click it to open a slider. The setting persists in `localStorage`. **Dragging the slider plays a preview chime at the new volume**, so you can hear the level as you adjust.
 - **Autoplay policy**: browsers keep `AudioContext` suspended until the first user gesture, so the chime is silent before the page has been clicked once — click anywhere and it works afterwards.
 
 ## Installation / removal

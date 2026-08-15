@@ -8,12 +8,14 @@
 import { createElement, useEffect, useRef, useState } from 'react'
 import type { PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 
-/** Injected face: current volume and its setter. */
+/** Injected face: current volume, its setter, and an audible preview. */
 export interface ChimeVolumeInjected {
   /** Initial volume in 0..1 (the chime's persisted setting). */
   readonly chimeVolume: number
   /** Apply a new volume in 0..1. */
   onChimeVolume: (volume: number) => void
+  /** Preview a chime at the given volume while adjusting (audible feedback). */
+  onChimePreview: (volume: number) => void
 }
 
 /** Full props of the volume control (framework runtime share + inject face). */
@@ -142,6 +144,8 @@ export function VolumeControl(props: VolumeControlProps): ReturnType<typeof crea
             const next = Number(event.target.value)
             setVolume(next)
             props.onChimeVolume(next)
+            // 调节音量时播放对应音量的试听音，方便判断合适的音量
+            props.onChimePreview(next)
           },
           style: { width: '72px', margin: '0' },
         }),
