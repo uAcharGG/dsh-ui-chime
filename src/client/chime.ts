@@ -32,8 +32,8 @@ export interface ChimeNote {
 
 /** The two ascending notes that make up one chime. */
 export const CHIME_NOTES: readonly ChimeNote[] = [
-  { frequency: 880, delay: 0, duration: 0.28, peak: 0.63 },
-  { frequency: 1318.51, delay: 0.14, duration: 0.42, peak: 0.465 },
+  { frequency: 880, delay: 0, duration: 0.28, peak: 1 },
+  { frequency: 1318.51, delay: 0.14, duration: 0.42, peak: 0.74 },
 ]
 
 /** Exponential attack ramp in seconds (keeps the onset click-free). */
