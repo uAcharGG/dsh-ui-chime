@@ -13,7 +13,7 @@
 /** localStorage key for the persisted volume (0..1). */
 const VOLUME_KEY = 'dsh.ui-chime.volume'
 /** Default volume when nothing is stored. */
-const DEFAULT_VOLUME = 0.6
+const DEFAULT_VOLUME = 0.8
 /** Minimum gap between two audible chimes (burst guard). */
 const MIN_INTERVAL_MS = 250
 /** Minimum gap between two volume-preview chimes (drag feedback guard). */
@@ -32,8 +32,8 @@ export interface ChimeNote {
 
 /** The two ascending notes that make up one chime. */
 export const CHIME_NOTES: readonly ChimeNote[] = [
-  { frequency: 880, delay: 0, duration: 0.28, peak: 0.3 },
-  { frequency: 1318.51, delay: 0.14, duration: 0.42, peak: 0.22 },
+  { frequency: 880, delay: 0, duration: 0.28, peak: 0.42 },
+  { frequency: 1318.51, delay: 0.14, duration: 0.42, peak: 0.31 },
 ]
 
 /** Exponential attack ramp in seconds (keeps the onset click-free). */
