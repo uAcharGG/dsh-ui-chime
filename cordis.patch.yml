@@ -1,0 +1,6 @@
+# dsh-ui-chime bundle layer: one row for the plugin itself. The row's node
+# half is the host-side apply (empty); the browser half ships via the
+# package's dsh.client manifest and is discovered by the modules scan.
+- insert:
+    - id: ui-chime
+      name: '@uachar/dsh-ui-chime'
