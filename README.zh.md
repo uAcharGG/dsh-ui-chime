@@ -17,9 +17,12 @@ DeepSeek Harness 的浏览器提示音插件：每当模型到达用户关心的
 
 ## 安装 / 卸载
 
-通过 dsh-launcher（本地路径 → `D:\Pro\dsh-ui-chime`）安装，或手动执行：
+通过 dsh-launcher（本地路径 → `D:\Pro\dsh-ui-chime`）安装，或使用打包好的 Release tarball，或手动执行：
 
 ```sh
+# 打包发布（GitHub Releases）
+pnpm dsh plugin --profile web add https://github.com/uAcharGG/dsh-ui-chime/releases/download/v0.1.0/uachar-dsh-ui-chime-0.1.0.tgz
+# 或源码目录
 pnpm dsh plugin --profile web add link:D:\Pro\dsh-ui-chime
 ```
 

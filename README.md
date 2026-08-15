@@ -17,9 +17,12 @@ History replay (opening a session, pagination, reconnect) never rings: an event 
 
 ## Installation / removal
 
-Install through dsh-launcher (local path → `D:\Pro\dsh-ui-chime`), or manually:
+Install through dsh-launcher (local path → `D:\Pro\dsh-ui-chime`), from the packaged release tarball, or manually:
 
 ```sh
+# packaged release (GitHub Releases)
+pnpm dsh plugin --profile web add https://github.com/uAcharGG/dsh-ui-chime/releases/download/v0.1.0/uachar-dsh-ui-chime-0.1.0.tgz
+# or the source checkout
 pnpm dsh plugin --profile web add link:D:\Pro\dsh-ui-chime
 ```
 
