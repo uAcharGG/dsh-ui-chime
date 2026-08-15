@@ -1,34 +1,53 @@
-# dsh-ui-chime（思考结束提示音）
+# dsh-ui-chime
 
-音效提示插件，对话结束播放一声短促的"叮"。
+A browser chime for **DeepSeek Harness**: a short synthesized "ding" plays whenever the model reaches a boundary the user cares about — a completed turn, or a point where it is waiting for the user. No audio assets, no session-log writes, no changes to the dsh core; installed and managed through dsh-launcher as a standalone package.
 
-## 什么时候响
+## When it rings
 
-- **每轮对话全部完成**（`turn/end`，completed / max-tokens）——多步骤回合中间的间歇思考不响；
-- **等待用户确认权限**（`approval/asked`）；
-- **等待用户选择方案**（模型调用 `ask_user_question` 工具）。
+- **A full turn completes** (`turn/end` with `completed` / `max-tokens`) — the intermediate thinking phases of multi-step turns stay silent.
+- **An approval is requested** (`approval/asked`) — the model is waiting on a permission decision.
+- **The model calls `ask_user_question`** (`tool/call`) — it is waiting for the user to pick an option.
 
-历史回放（打开会话、翻页、重连）不会响：以事件时间距现在是否在 10 秒内作为实时门控。
+History replay (opening a session, pagination, reconnect) never rings: an event counts as live only if it is within 10 seconds of now.
 
-## 怎么用
+## How to use
 
-- **音量调节**：聊天输入框工具行（左侧）有一个喇叭按钮，点击弹出音量滑条，设置会记住（localStorage）。
-- 浏览器自动播放策略：首次与页面交互前 `AudioContext` 保持挂起，声音静默；点击页面任意位置后即正常。
+- **Volume control**: the composer tool row has a speaker button (Windows-style line icon) on the left; click it to open a slider. The setting persists in `localStorage`.
+- **Autoplay policy**: browsers keep `AudioContext` suspended until the first user gesture, so the chime is silent before the page has been clicked once — click anywhere and it works afterwards.
 
-## 安装 / 卸载（dsh-launcher）
+## Installation / removal
 
-- 安装：管理面板 → 插件 → 安装，来源选"本地路径"，填入 `D:\Pro\dsh-ui-chime`（等价于 `pnpm dsh plugin --profile web add link:D:\Pro\dsh-ui-chime`），完成后**重启 dsh** 生效。
-- 卸载：面板插件列表 → 卸载（等价于 `pnpm dsh plugin --profile web remove @uachar/dsh-ui-chime`），重启后移除。
-- 启停：面板插件列表 → 启/停用（只改组合层，不卸载代码）。
+Install through dsh-launcher (local path → `D:\Pro\dsh-ui-chime`), or manually:
 
-## 结构
+```sh
+pnpm dsh plugin --profile web add link:D:\Pro\dsh-ui-chime
+```
 
-| 文件 | 作用 |
+Restart `dsh` to take effect. To remove: uninstall from the panel (or `pnpm dsh plugin --profile web remove @uachar/dsh-ui-chime`) and restart. Enable/disable just edits the composition layer without removing the code.
+
+## Structure
+
+| File | Purpose |
 |---|---|
-| `cordis.patch.yml` | bundle 组合层：把自己作为一行 `ui-chime` 插入 profile |
-| `src/index.ts` | node half：空 apply（让行出现在 Host Loader / `dsh.client` 扫描） |
-| `src/client/index.ts` | browser half：注册头less Conversation Definition（响铃触发）+ 音量控件 |
-| `src/client/chime.ts` | Web Audio 合成引擎 + 音量持久化 |
-| `src/client/volume-control.tsx` | 输入框工具行的音量滑块 |
+| `cordis.patch.yml` | bundle composition layer: inserts the plugin as one `ui-chime` row |
+| `src/index.ts` | node half: empty apply (so the row appears in the Host loader / `dsh.client` scan) |
+| `src/client/index.ts` | browser half: headless Conversation Definition (ring triggers) + volume control registration |
+| `src/client/chime.ts` | Web Audio synthesis engine + persisted volume |
+| `src/client/volume-control.tsx` | speaker button and volume slider in the composer tool row |
 
-构建：`pnpm install && pnpm run build`（tsc → tsdown，产出 `lib/index.js` 与 `lib/client.js`）。
+## Building
+
+```sh
+pnpm install
+pnpm run build        # tsc -> tsdown; emits lib/index.js and lib/client.js
+```
+
+## Known limitations
+
+- **Autoplay policy** — the first chime before any user gesture is silently skipped (the unlock listeners make the next one ring).
+- **Boundary events only** — the triggers are `turn/end`, `approval/asked`, and `ask_user_question` tool calls; a step interrupted mid-reasoning never rings.
+- **No per-session control** — the chime rings for every session at one loudness (volume is global, persisted in localStorage).
+
+## License
+
+MIT
