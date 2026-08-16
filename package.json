@@ -1,8 +1,7 @@
 {
   "name": "@uachar/dsh-ui-chime",
-  "description": "思考结束提示音：每轮对话完成或等待用户答复时在浏览器播放提示音，带声量调节（经 dsh-launcher 安装）",
-  "version": "0.1.0",
-  "private": true,
+  "description": "DSH 思考结束提示音：每轮对话完成或等待用户答复时在浏览器播放提示音，支持音量调节。",
+  "version": "0.1.1",
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
@@ -17,6 +16,31 @@
     },
     "./package.json": "./package.json"
   },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "lib/client.js.map",
+    "lib/types/**/*.js",
+    "lib/types/**/*.d.ts",
+    "cordis.patch.yml",
+    "README.md",
+    "README.zh.md"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uAcharGG/dsh-ui-chime.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "chime",
+    "sound",
+    "notification"
+  ],
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
@@ -40,6 +64,5 @@
     "react": "^18.2.0",
     "tsdown": "^0.22.2",
     "typescript": "^6.0.3"
-  },
-  "license": "MIT"
+  }
 }
