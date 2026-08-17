@@ -86,6 +86,12 @@ export const inject = ['conversationEvents', 'slots', 'sessions']
 
 /**
  * Browser plugin body: register the ring Definition and the volume control.
+ *
+ * 提问/审批触发（rc.7 起）：ask_user_question 与 approval 不再走会话事件
+ * （tool/call、approval/asked），改由 wire 帧 `question/requested` /
+ * `approval/requested` 驱动，UI 侧反映为会话快照的 pending 交互。因此这里
+ * 订阅当前会话快照，`pending` 中出现 `question` / `approval` 等待即响；
+ * 按 `key`（`q:<rpcId>` / `a:<rpcId>`）去重，回答后 key 消失可再次触发。
  * @param ctx - Client Cordis context.
  */
 export function apply(ctx: ClientContext): void {
@@ -111,6 +117,57 @@ export function apply(ctx: ClientContext): void {
       return false
     }
   }
+  // —— 提问/审批等待（rc.7 wire 帧驱动，快照 pending 是权威信号）——
+  const sessions = ctx.get('sessions') as {
+    list?: { getSnapshot?: () => { current?: string }; subscribe?: (fn: () => void) => () => void }
+    binding?: (id: string) => { session?: { getSnapshot?: () => unknown; subscribe?: (fn: () => void) => () => void } } | undefined
+  } | undefined
+  const rungPendingKeys = new Set<string>()
+  let currentFace: { getSnapshot?: () => unknown; subscribe?: (fn: () => void) => () => void } | undefined
+  let detachFace: (() => void) | undefined
+  const inspectPending = (): void => {
+    try {
+      const snapshot = currentFace?.getSnapshot?.() as { pending?: unknown } | undefined
+      const pending = Array.isArray(snapshot?.pending) ? snapshot.pending : []
+      const seen = new Set<string>()
+      let ring = false
+      for (const item of pending) {
+        if (item === null || typeof item !== 'object') continue
+        const record = item as { kind?: unknown; key?: unknown }
+        if (record.kind !== 'question' && record.kind !== 'approval') continue
+        if (typeof record.key !== 'string') continue
+        seen.add(record.key)
+        if (!rungPendingKeys.has(record.key)) {
+          rungPendingKeys.add(record.key)
+          ring = true
+        }
+      }
+      for (const key of rungPendingKeys) if (!seen.has(key)) rungPendingKeys.delete(key)
+      if (ring) chime.play()
+    } catch {
+      // 快照读异常不影响其他触发路径
+    }
+  }
+  const attachSession = (id: string | undefined): void => {
+    detachFace?.()
+    detachFace = undefined
+    currentFace = undefined
+    if (id === undefined) return
+    try {
+      const face = sessions?.binding?.(id)?.session
+      if (face === undefined || typeof face.subscribe !== 'function') return
+      currentFace = face
+      detachFace = face.subscribe(inspectPending)
+      inspectPending()
+    } catch {
+      // binding 不可用：仅事件路径触发
+    }
+  }
+  const listState = sessions?.list
+  const detachList = listState?.subscribe?.(() => attachSession(listState.getSnapshot?.()?.current))
+  attachSession(listState?.getSnapshot?.()?.current)
+  ctx.effect(() => () => { detachList?.(); detachFace?.() }, 'ui-chime: pending watcher')
+
   ctx.conversationEvents.register(createRingDefinition(chime, hasRunningSubagent))
   ctx.slots.inject('conversation.input.left', () => ctx.slots.register({
     name: 'conversation.input.left',

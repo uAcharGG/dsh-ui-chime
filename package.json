@@ -1,7 +1,7 @@
 {
   "name": "@uachar/dsh-ui-chime",
   "description": "DSH 思考结束提示音：每轮对话完成或等待用户答复时在浏览器播放提示音，支持音量调节。",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
